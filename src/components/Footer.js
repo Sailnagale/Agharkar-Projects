@@ -14,7 +14,7 @@ const Footer = ({ darkMode }) => {
           <p className="font-semibold text-sm">
             © 2025 AgriVision AI Research Group.
           </p>
-          <p className="text-xs mt-1 opacity-75">Developed at VIT Pune</p>
+          <p className="text-xs mt-1 opacity-75">Developed at ARI Pune</p>
         </div>
 
         <div className="flex space-x-6 text-sm">
