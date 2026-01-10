@@ -5,19 +5,15 @@ const SeedInspector = ({ darkMode }) => {
   const [previewUrl, setPreviewUrl] = useState(null);
   const [result, setResult] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [timer, setTimer] = useState(0); // Timer state
+  const [timer, setTimer] = useState(0);
 
   const imageRef = useRef(null);
   const canvasRef = useRef(null);
   const API_URL = "https://sail-nagale-yolo-backend.hf.space/detect-seeds";
 
-  // --- LOCAL SAMPLES (In public/images folder) ---
+  // --- LOCAL SAMPLES ---
   const SAMPLE_IMAGES = [
-    {
-      id: 1,
-      url: "images/seed/i1.jpg",
-      label: "Sample 1",
-    },
+    { id: 1, url: "images/seed/i1.jpg", label: "Sample 1" },
     { id: 2, url: "images/seed/i6.jpg", label: "Sample 2" },
     { id: 3, url: "images/seed/i3.jpg", label: "Sample 3" },
     { id: 4, url: "images/seed/i7.jpg", label: "Sample 4" },
@@ -36,28 +32,36 @@ const SeedInspector = ({ darkMode }) => {
     return () => clearInterval(interval);
   }, [isAnalyzing]);
 
+  // --- NEW: Clear Canvas Effect ---
+  // This ensures old boxes vanish immediately when you switch images
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (canvas) {
+      const ctx = canvas.getContext("2d");
+      // Clear the entire canvas
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+  }, [previewUrl, result]); // Runs when image changes or result is reset
+
   // Handle User Upload
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       setSelectedFile(file);
       setPreviewUrl(URL.createObjectURL(file));
-      setResult(null);
+      setResult(null); // This triggers the clear effect above
     }
   };
 
   // Handle Sample Selection
   const handleSampleSelect = async (sampleUrl) => {
     try {
-      // 1. Show preview immediately
       setPreviewUrl(sampleUrl);
-      setResult(null);
+      setResult(null); // This triggers the clear effect above
 
-      // 2. Fetch the local file and convert to Blob -> File
       const response = await fetch(sampleUrl);
       const blob = await response.blob();
       const file = new File([blob], "sample_seed.jpg", { type: "image/jpeg" });
-
       setSelectedFile(file);
     } catch (err) {
       console.error("Could not load local sample:", err);
@@ -83,7 +87,8 @@ const SeedInspector = ({ darkMode }) => {
     }
   };
 
-  // Canvas Drawing
+  // --- Drawing Effect ---
+  // Only runs when we have a valid result to draw
   useEffect(() => {
     if (result && imageRef.current && canvasRef.current) {
       const img = imageRef.current;
@@ -91,22 +96,33 @@ const SeedInspector = ({ darkMode }) => {
       const ctx = canvas.getContext("2d");
 
       const draw = () => {
+        // Set canvas size to match image resolution
         canvas.width = img.width;
         canvas.height = img.height;
+
+        // Calculate scale (CSS size vs Natural size)
         const scaleX = img.width / img.naturalWidth;
         const scaleY = img.height / img.naturalHeight;
 
+        // Draw new boxes
         result.detections.forEach((det) => {
           const [x1, y1, x2, y2] = det.bbox;
           const color = det.class === "egg" ? "#FACC15" : "#FB7185";
+
           ctx.strokeStyle = color;
           ctx.lineWidth = 3;
+
           ctx.strokeRect(
             x1 * scaleX,
             y1 * scaleY,
             (x2 - x1) * scaleX,
             (y2 - y1) * scaleY
           );
+
+          // Optional: Add labels
+          ctx.fillStyle = color;
+          ctx.font = "bold 14px Arial";
+          ctx.fillText(det.class, x1 * scaleX, y1 * scaleY - 5);
         });
       };
 

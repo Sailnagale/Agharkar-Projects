@@ -6,6 +6,8 @@ import Contact from "./components/Contact";
 import SeedInspector from "./components/SeedInspector";
 import RootAnalyzer from "./components/RootAnalyzer";
 import LeafAnalyzer from "./components/LeafAnalyzer";
+// 1. Import the new component
+import VisitorStats from "./components/VisitorStats";
 
 function App() {
   // Navigation State: 'home', 'about', 'contact'
@@ -61,10 +63,15 @@ function App() {
         </div>
 
         {/* The Active Tool Component */}
-        <div className="animate-fade-in-up">
+        <div className="animate-fade-in-up min-h-[60vh]">
           {activeTool === "seeds" && <SeedInspector darkMode={darkMode} />}
           {activeTool === "roots" && <RootAnalyzer darkMode={darkMode} />}
           {activeTool === "leaf" && <LeafAnalyzer darkMode={darkMode} />}
+        </div>
+
+        {/* 2. Add the Visitor Stats Section here */}
+        <div className="mt-20 border-t border-gray-200/50 pt-10">
+          <VisitorStats darkMode={darkMode} />
         </div>
       </>
     );
