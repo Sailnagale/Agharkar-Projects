@@ -2,20 +2,33 @@ import React, { useEffect } from "react";
 
 const VisitorStats = ({ darkMode }) => {
   useEffect(() => {
-    // 1. Load Globe Script (ClustrMaps)
-    if (!document.getElementById("clstr_globe")) {
-      const script = document.createElement("script");
-      script.src =
-        "//clustrmaps.com/globe.js?d=nnUJ4bmntKrBdqyIzUaP4HUyGFvAaX3tNB5axVGuIC0";
-      script.id = "clstr_globe";
-      script.async = true;
-
-      const container = document.getElementById("globe-container");
-      if (container) {
-        container.innerHTML = "";
-        container.appendChild(script);
-      }
+    // 1. CLEANUP: Remove any existing script from previous visits first
+    const existingScript = document.getElementById("clstr_globe");
+    if (existingScript) {
+      existingScript.remove();
     }
+
+    // 2. CREATE & INJECT SCRIPT
+    const script = document.createElement("script");
+    script.src =
+      "//clustrmaps.com/globe.js?d=nnUJ4bmntKrBdqyIzUaP4HUyGFvAaX3tNB5axVGuIC0";
+    script.id = "clstr_globe";
+    script.async = true;
+
+    const container = document.getElementById("globe-container");
+    if (container) {
+      // Clear the "Loading..." text before appending
+      container.innerHTML = "";
+      container.appendChild(script);
+    }
+
+    // 3. CLEANUP ON UNMOUNT (When user leaves the page)
+    return () => {
+      const scriptToRemove = document.getElementById("clstr_globe");
+      if (scriptToRemove) {
+        scriptToRemove.remove();
+      }
+    };
   }, []);
 
   // Styles
@@ -37,13 +50,16 @@ const VisitorStats = ({ darkMode }) => {
           <h3 className={titleStyle}>Global Research Reach</h3>
 
           <div className="flex flex-col md:flex-row items-center gap-8">
-            {/* 1. GLOBE */}
+            {/* 1. GLOBE CONTAINER */}
             <div className="flex-shrink-0 flex justify-center items-center">
               <div
                 id="globe-container"
-                className="w-[200px] h-[200px] flex items-center justify-center"
+                className="w-[200px] h-[200px] flex items-center justify-center overflow-hidden rounded-full"
               >
-                <span className="text-xs opacity-50">Loading Globe...</span>
+                {/* Fallback Text */}
+                <span className="text-xs opacity-50 animate-pulse">
+                  Connecting to Satellite...
+                </span>
               </div>
             </div>
 
@@ -84,12 +100,12 @@ const VisitorStats = ({ darkMode }) => {
                 darkMode ? "text-gray-400" : "text-gray-500"
               }`}
             >
-               Researchers and users who have accessed the platform.
+              Researchers and users who have accessed the platform.
             </p>
           </div>
 
           <div className="mt-8 text-center">
-            {/* --- YOUR NEW HIT COUNTER CODE --- */}
+            {/* --- HIT COUNTER --- */}
             <div className="flex justify-center items-center py-4 transform scale-110">
               <a
                 href="https://www.hitwebcounter.com/"
@@ -97,7 +113,7 @@ const VisitorStats = ({ darkMode }) => {
                 rel="noopener noreferrer"
               >
                 <img
-                  src="https://hitwebcounter.com/counter/counter.php?page=21468590&style=0025&nbdigits=5&type=page&initCount=0"
+                  src="https://hitwebcounter.com/counter/counter.php?page=21468591&style=0025&nbdigits=5&type=page&initCount=0"
                   title="Total Visitors"
                   alt="Total Visitors"
                   border="0"

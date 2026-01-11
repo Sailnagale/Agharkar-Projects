@@ -1,7 +1,19 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+// Import auth functions from your firebase file (moving up one directory)
+import { auth, signInWithGoogle, logout } from "../firebase";
+import { onAuthStateChanged } from "firebase/auth";
 
 const Navbar = ({ darkMode, toggleTheme, onNavigate, activePage }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [user, setUser] = useState(null); // State to track the logged-in user
+
+  // Listen for authentication changes (Login/Logout)
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
+    return () => unsubscribe();
+  }, []);
 
   // Helper for Link Classes
   const navLinkClass = (page) => `
@@ -109,6 +121,38 @@ const Navbar = ({ darkMode, toggleTheme, onNavigate, activePage }) => {
                 darkMode ? "bg-gray-700" : "bg-gray-300"
               }`}
             ></div>
+
+            {/* AUTH SECTION (Desktop) */}
+            {user ? (
+              <div className="flex items-center gap-3 mr-2">
+                <img
+                  src={user.photoURL}
+                  alt="Profile"
+                  referrerPolicy="no-referrer"
+                  className="w-8 h-8 rounded-full border border-green-500"
+                  title={user.displayName}
+                />
+                <button
+                  onClick={logout}
+                  className={`text-sm font-medium hover:underline ${
+                    darkMode ? "text-gray-300" : "text-gray-600"
+                  }`}
+                >
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={signInWithGoogle}
+                className={`mr-2 px-4 py-1.5 rounded-full text-sm font-bold shadow-md transition-all transform hover:-translate-y-0.5 ${
+                  darkMode
+                    ? "bg-white text-gray-900 hover:bg-gray-100"
+                    : "bg-gray-900 text-white hover:bg-gray-800"
+                }`}
+              >
+                Login
+              </button>
+            )}
 
             {/* Theme Toggle Button */}
             <button
@@ -268,6 +312,52 @@ const Navbar = ({ darkMode, toggleTheme, onNavigate, activePage }) => {
               }}
               darkMode={darkMode}
             />
+
+            {/* AUTH SECTION (Mobile) */}
+            <div
+              className={`mt-4 pt-4 border-t ${
+                darkMode ? "border-gray-800" : "border-gray-200"
+              }`}
+            >
+              {user ? (
+                <div className="px-3 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={user.photoURL}
+                      alt="p"
+                      className="w-8 h-8 rounded-full"
+                    />
+                    <span
+                      className={`text-sm ${
+                        darkMode ? "text-gray-300" : "text-gray-700"
+                      }`}
+                    >
+                      {user.displayName}
+                    </span>
+                  </div>
+                  <button
+                    onClick={logout}
+                    className="text-sm text-red-500 font-medium"
+                  >
+                    Logout
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => {
+                    signInWithGoogle();
+                    setIsOpen(false);
+                  }}
+                  className={`w-full text-center py-2 rounded-md font-bold ${
+                    darkMode
+                      ? "bg-white text-gray-900"
+                      : "bg-gray-900 text-white"
+                  }`}
+                >
+                  Login with Google
+                </button>
+              )}
+            </div>
           </div>
         </div>
       )}
