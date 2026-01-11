@@ -2,27 +2,27 @@ import React, { useEffect } from "react";
 
 const VisitorStats = ({ darkMode }) => {
   useEffect(() => {
-    // 1. CLEANUP: Remove any existing script from previous visits first
+    // 1. CLEANUP: Remove old script if it exists (prevents duplicates)
     const existingScript = document.getElementById("clstr_globe");
     if (existingScript) {
       existingScript.remove();
     }
 
-    // 2. CREATE & INJECT SCRIPT
+    // 2. CREATE SCRIPT
     const script = document.createElement("script");
     script.src =
       "//clustrmaps.com/globe.js?d=nnUJ4bmntKrBdqyIzUaP4HUyGFvAaX3tNB5axVGuIC0";
-    script.id = "clstr_globe";
+    script.id = "clstr_globe"; // This ID allows us to find and remove it later
     script.async = true;
 
+    // 3. INJECT INTO CONTAINER
     const container = document.getElementById("globe-container");
     if (container) {
-      // Clear the "Loading..." text before appending
-      container.innerHTML = "";
+      container.innerHTML = ""; // Clear "Loading" text
       container.appendChild(script);
     }
 
-    // 3. CLEANUP ON UNMOUNT (When user leaves the page)
+    // 4. CLEANUP ON EXIT (Crucial for React)
     return () => {
       const scriptToRemove = document.getElementById("clstr_globe");
       if (scriptToRemove) {
@@ -50,16 +50,17 @@ const VisitorStats = ({ darkMode }) => {
           <h3 className={titleStyle}>Global Research Reach</h3>
 
           <div className="flex flex-col md:flex-row items-center gap-8">
-            {/* 1. GLOBE CONTAINER */}
+            {/* 1. 3D GLOBE CONTAINER */}
             <div className="flex-shrink-0 flex justify-center items-center">
               <div
                 id="globe-container"
                 className="w-[200px] h-[200px] flex items-center justify-center overflow-hidden rounded-full"
               >
-                {/* Fallback Text */}
-                <span className="text-xs opacity-50 animate-pulse">
-                  Connecting to Satellite...
-                </span>
+                {/* This text shows only while loading */}
+                <div className="text-center opacity-50 text-xs">
+                  <div className="w-6 h-6 border-2 border-green-500 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+                  Loading Globe...
+                </div>
               </div>
             </div>
 
@@ -105,7 +106,7 @@ const VisitorStats = ({ darkMode }) => {
           </div>
 
           <div className="mt-8 text-center">
-            {/* --- HIT COUNTER --- */}
+            {/* HIT COUNTER */}
             <div className="flex justify-center items-center py-4 transform scale-110">
               <a
                 href="https://www.hitwebcounter.com/"
@@ -113,7 +114,7 @@ const VisitorStats = ({ darkMode }) => {
                 rel="noopener noreferrer"
               >
                 <img
-                  src="https://hitwebcounter.com/counter/counter.php?page=21468591&style=0025&nbdigits=5&type=page&initCount=0"
+                  src="https://hitwebcounter.com/counter/counter.php?page=21468592&style=0025&nbdigits=5&type=page&initCount=0"
                   title="Total Visitors"
                   alt="Total Visitors"
                   border="0"

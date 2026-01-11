@@ -11,10 +11,10 @@ const LeafAnalyzer = ({ darkMode }) => {
   // --- LOCAL SAMPLES ---
   const SAMPLE_IMAGES = [
     { id: 1, url: "/images/leaf/11.jpg", label: "Leaf 1" },
-    { id: 2, url: "/images/leaf/66.jpg", label: "Leaf 2" },
+    // { id: 2, url: "/images/leaf/66.jpg", label: "Leaf 2" },
     { id: 3, url: "/images/leaf/163.jpg", label: "Leaf 3" },
     { id: 4, url: "/images/leaf/174.jpg", label: "Leaf 4" },
-    { id: 5, url: "/images/leaf/203.jpg", label: "Leaf 5" },
+    // { id: 5, url: "/images/leaf/203.jpg", label: "Leaf 5" },
     { id: 6, url: "/images/leaf/207.jpg", label: "Leaf 6" },
   ];
 
