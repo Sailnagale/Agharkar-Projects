@@ -16,6 +16,8 @@ import SeedInspector from "./components/SeedInspector";
 import RootAnalyzer from "./components/RootAnalyzer";
 import LeafAnalyzer from "./components/LeafAnalyzer";
 import VisitorStats from "./components/VisitorStats";
+import Developers from "./components/Developers";
+import Profile from "./components/Profile"; // <--- 1. Import Profile
 
 function App() {
   // Navigation State
@@ -46,7 +48,7 @@ function App() {
     }
   }, [darkMode]);
 
-  // Login Function (to be passed to "Get Started" buttons)
+  // Login Function
   const handleLogin = async () => {
     const provider = new GoogleAuthProvider();
     try {
@@ -58,10 +60,11 @@ function App() {
 
   // Logic to decide what to show
   const renderContent = () => {
+    // Public Pages
     if (currentPage === "about") return <About darkMode={darkMode} />;
     if (currentPage === "contact") return <Contact darkMode={darkMode} />;
 
-    // --- HOME PAGE LOGIC ---
+    // --- HOME PAGE & DASHBOARD LOGIC ---
 
     // A. If Loading, show spinner
     if (loading) {
@@ -119,7 +122,14 @@ function App() {
       );
     }
 
-    // C. If Logged In -> Show the Tools (Your existing code)
+    // --- LOGGED IN USER AREA ---
+
+    // C.1 Show Profile if selected
+    if (currentPage === "profile") {
+      return <Profile user={user} darkMode={darkMode} />;
+    }
+
+    // C.2 Default: Show the Dashboard Tools
     return (
       <>
         <div className="flex justify-center mb-10">
@@ -168,7 +178,6 @@ function App() {
         darkMode ? "bg-gray-900 text-gray-100" : "bg-gray-50 text-gray-800"
       }`}
     >
-      {/* Navbar gets the user prop so it knows when to show the profile picture */}
       <Navbar
         darkMode={darkMode}
         toggleTheme={() => setDarkMode(!darkMode)}
@@ -180,6 +189,8 @@ function App() {
       <main className="flex-grow w-full max-w-7xl mx-auto px-4 py-8">
         {renderContent()}
       </main>
+
+      <Developers darkMode={darkMode} />
 
       <Footer darkMode={darkMode} />
     </div>
