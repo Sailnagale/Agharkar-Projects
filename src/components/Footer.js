@@ -54,13 +54,22 @@ const Footer = ({ darkMode }) => {
 
         {/* --- 3. Right: Links --- */}
         <div className="flex space-x-6 text-sm">
-          <a href="#" className="hover:underline">
+          <a
+            href="https://www.linkedin.com/in/sail-nagale-4891a5321"
+            className="hover:underline"
+          >
             Documentation
           </a>
-          <a href="#" className="hover:underline">
+          <a
+            href="https://www.linkedin.com/in/sail-nagale-4891a5321"
+            className="hover:underline"
+          >
             Privacy Policy
           </a>
-          <a href="#" className="hover:underline">
+          <a
+            href="https://www.linkedin.com/in/sail-nagale-4891a5321"
+            className="hover:underline"
+          >
             Report Issue
           </a>
         </div>
