@@ -9,7 +9,7 @@ gsap.registerPlugin(ScrollTrigger);
 const guides = [
   {
     name: "Dr. Manoj Oak",
-    role: "SCIENTIST – F", // Updated Role
+    role: "SCIENTIST F", // Updated Role
     image: "images/team/oak.png",
     bio: "A leading scientist with 26 years in crop genetics, specializing in biofortification and molecular breeding to enhance wheat and soybean quality. He pioneers genetic solutions for superior nutrition, processing, and varietal fraud detection.",
     socials: { email: "mailto:example@ari.res.in" },
