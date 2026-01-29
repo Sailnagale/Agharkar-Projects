@@ -1,37 +1,66 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
+import createGlobe from "cobe";
 
-const VisitorStats = ({ darkMode }) => {
+// --- 1. THE GLOBE COMPONENT ---
+const InteractiveGlobe = ({ darkMode }) => {
+  const canvasRef = useRef();
+
   useEffect(() => {
-    // 1. CLEANUP: Remove old script if it exists (prevents duplicates)
-    const existingScript = document.getElementById("clstr_globe");
-    if (existingScript) {
-      existingScript.remove();
-    }
+    let phi = 0;
 
-    // 2. CREATE SCRIPT
-    const script = document.createElement("script");
-    script.src =
-      "//clustrmaps.com/globe.js?d=nnUJ4bmntKrBdqyIzUaP4HUyGFvAaX3tNB5axVGuIC0";
-    script.id = "clstr_globe"; // This ID allows us to find and remove it later
-    script.async = true;
+    const globe = createGlobe(canvasRef.current, {
+      devicePixelRatio: 2,
+      width: 600,
+      height: 600,
+      phi: 0,
+      theta: 0,
+      // toggle 'dark' mode logic in the engine
+      dark: darkMode ? 1 : 0,
+      diffuse: 1.2,
+      // --- VISUAL TWEAKS START ---
+      // 1. More dots = clearer continents
+      mapSamples: 100000,
+      // 2. Adjust brightness: High for Dark Mode (glowing), Low for Light Mode (dark dots)
+      mapBrightness: darkMode ? 6 : 1.2,
+      // 3. Colors
+      baseColor: darkMode ? [0.1, 0.1, 0.1] : [1, 1, 1],
+      markerColor: darkMode ? [0.1, 0.8, 1] : [1, 0.1, 0.1], // Cyan (dark) / Red (light)
+      glowColor: darkMode ? [0.1, 0.1, 0.2] : [0.9, 0.9, 0.9],
+      // --- VISUAL TWEAKS END ---
+      scale: 1,
+      markers: [
+        { location: [19.076, 72.8777], size: 0.1 }, // Pune (Home)
+        { location: [40.7128, -74.006], size: 0.05 }, // New York
+        { location: [35.6762, 139.6503], size: 0.05 }, // Tokyo
+        { location: [40.4168, -3.7038], size: 0.05 }, // Madrid
+        { location: [37.5665, 126.978], size: 0.05 }, // Seoul
+      ],
+      onRender: (state) => {
+        // Spin slightly faster
+        state.phi = phi;
+        phi += 0.005;
+      },
+    });
 
-    // 3. INJECT INTO CONTAINER
-    const container = document.getElementById("globe-container");
-    if (container) {
-      container.innerHTML = ""; // Clear "Loading" text
-      container.appendChild(script);
-    }
-
-    // 4. CLEANUP ON EXIT (Crucial for React)
     return () => {
-      const scriptToRemove = document.getElementById("clstr_globe");
-      if (scriptToRemove) {
-        scriptToRemove.remove();
-      }
+      globe.destroy();
     };
-  }, []);
+  }, [darkMode]);
 
-  // Styles
+  return (
+    <div className="flex items-center justify-center w-full h-full py-4">
+      <div className="relative w-full max-w-[300px] aspect-square">
+        <canvas
+          ref={canvasRef}
+          style={{ width: "100%", height: "100%", contain: "layout paint" }}
+        />
+      </div>
+    </div>
+  );
+};
+
+// --- 2. MAIN COMPONENT ---
+const VisitorStats = ({ darkMode }) => {
   const cardStyle = `
     relative overflow-hidden rounded-2xl p-6 border shadow-lg transition-all duration-300
     ${darkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"}
@@ -50,21 +79,12 @@ const VisitorStats = ({ darkMode }) => {
           <h3 className={titleStyle}>Global Research Reach</h3>
 
           <div className="flex flex-col md:flex-row items-center gap-8">
-            {/* 1. 3D GLOBE CONTAINER */}
-            <div className="flex-shrink-0 flex justify-center items-center">
-              <div
-                id="globe-container"
-                className="w-[200px] h-[200px] flex items-center justify-center overflow-hidden rounded-full"
-              >
-                {/* This text shows only while loading */}
-                <div className="text-center opacity-50 text-xs">
-                  <div className="w-6 h-6 border-2 border-green-500 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
-                  Loading Globe...
-                </div>
-              </div>
+            {/* Globe Section */}
+            <div className="flex-shrink-0 w-full md:w-1/2 flex justify-center">
+              <InteractiveGlobe darkMode={darkMode} />
             </div>
 
-            {/* 2. COUNTRY LIST (Flag Counter) */}
+            {/* Stats Section */}
             <div className="flex-1 w-full">
               <p
                 className={`text-sm mb-3 ${
@@ -73,8 +93,11 @@ const VisitorStats = ({ darkMode }) => {
               >
                 Top Visiting Countries (Live Data):
               </p>
-
-              <div className="bg-gray-100/50 p-4 rounded-lg overflow-x-auto">
+              <div
+                className={`p-4 rounded-lg overflow-x-auto ${
+                  darkMode ? "bg-gray-900/50" : "bg-gray-50"
+                }`}
+              >
                 <a
                   href="https://info.flagcounter.com/39CI"
                   target="_blank"
@@ -106,7 +129,6 @@ const VisitorStats = ({ darkMode }) => {
           </div>
 
           <div className="mt-8 text-center">
-            {/* HIT COUNTER */}
             <div className="flex justify-center items-center py-4 transform scale-110">
               <a
                 href="https://www.hitwebcounter.com/"
@@ -121,7 +143,6 @@ const VisitorStats = ({ darkMode }) => {
                 />
               </a>
             </div>
-
             <span
               className={`px-3 py-1 rounded-full text-xs font-medium ${
                 darkMode
